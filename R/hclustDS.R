@@ -13,37 +13,20 @@
 
 hclustDS <- function(diss, method){
   
+  
+  diss <- eval(parse(text=diss), envir = parent.frame())  
+  
 
-# Computes the hierarchical clustering
-outcome <- stats::hclust(diss, method = method)  
+  # Computes the hierarchical clustering
+  outcome <- stats::hclust(diss, method)  
 
-# Assigns the hierarchical clustering outcome to the server side  
-return(outcome)
+  # Assigns the hierarchical clustering outcome to the server side  
+  return(outcome)
  
   
 }
 
 # ASSIGN function
 # hclustDS
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

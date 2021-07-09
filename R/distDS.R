@@ -14,12 +14,14 @@
 
 distDS <- function(df.name, method){
   
- 
-# Computes the distance matrix
-outcome <- stats::dist(df.name, method = method)
+  df.name <- eval(parse(text=df.name), envir = parent.frame())  
+  
+   
+  # Computes the distance matrix
+  outcome <- stats::dist(df.name, method)
 
-# the outcome of the distance matrix is assigned to the data servers  
-return(outcome)  
+  # the outcome of the distance matrix is assigned to the data servers  
+  return(outcome)  
   
 
   

@@ -14,9 +14,11 @@
 
 cutreeDS <- function(tree, k = NULL, h = NULL){
   
+  tree <- eval(parse(text=tree), envir = parent.frame())  
+  
 
   # Cuts the tree
-  outcome <- stats::cutree(tree = tree, k = k, h = h)  
+  outcome <- stats::cutree(tree, k, h)  
   
   # Assigns the resulting vector with the cluster numbers to the server side  
   return(outcome)

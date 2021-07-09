@@ -25,7 +25,7 @@ kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm, trace = FAL
   
   
   # Computing k-means clustering of the data set
-  outcome <- stats::kmeans(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)  
+  outcome <- stats::kmeans(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)[1]  
   
 
   # Assigning the k-means clustering object to the server-side
@@ -37,23 +37,4 @@ kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm, trace = FAL
 
 # ASSIGN funtion
 # kmeansDS
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
