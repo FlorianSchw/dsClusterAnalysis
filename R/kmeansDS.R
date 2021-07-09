@@ -22,7 +22,7 @@ kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm, trace = FAL
 
 
   df.name <- eval(parse(text=df.name), envir = parent.frame())  
-  algorithm <- eval(parse(text=algorithm), envir = parent.frame())
+  
   
   # Computing k-means clustering of the data set
   outcome <- stats::kmeans(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)  
