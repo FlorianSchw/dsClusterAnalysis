@@ -18,15 +18,18 @@
 
 
 
-kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm){
+kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE){
 
 
-# Computing k-means clustering of the data set
-outcome <- stats::kmeans(df.name, centers = clusters, iter.max = iter.max, nstart = nstart, algorithm = algorithm)  
+  df.name <- eval(parse(text=df.name), envir = parent.frame())  
+  algorithm <- eval(parse(text=algorithm), envir = parent.frame())
+  
+  # Computing k-means clustering of the data set
+  outcome <- stats::kmeans(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)  
   
 
-# Assigning the k-means clustering object to the server-side
-return(outcome)  
+  # Assigning the k-means clustering object to the server-side
+  return(outcome)  
   
   
   
