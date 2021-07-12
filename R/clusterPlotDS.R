@@ -16,7 +16,7 @@
 #' @param ylab is a title for the y axis 
 #' @return the object specified by the \code{newobj} argument of \code{ds.kmeans} or default name \code{kmeans.newobj}
 #' @author Florian Schwarz for the German Institute of Human Nutrition
-#' @importFrom factoextra fviz_dend
+#' @import factoextra 
 #' @export
 #' 
 
