@@ -7,7 +7,7 @@ License: GPL-3 + file LICENSE
 Title: DataSHIELD server side functions for the dsClusterAnalysis package
 Description: Server side functions to perform non-disclosive cluster analysis with DataSHIELD.
 Depends: R(>= 4.0.0)
-Imports: factoextra
+Imports: factoextra(>= 1.0.7)
 Options: datashield.privacyLevel=5
 AggregateMethods:
   clusterPlotDS
