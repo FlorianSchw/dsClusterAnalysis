@@ -2,7 +2,7 @@
 % Please edit documentation in R/clusterPlotDS.R
 \name{clusterPlotDS}
 \alias{clusterPlotDS}
-\title{Conducts k-means clustering of a given data set}
+\title{Plots hierarchical cluster}
 \usage{
 clusterPlotDS(
   df.name,
@@ -39,12 +39,10 @@ clusterPlotDS(
 the object specified by the \code{newobj} argument of \code{ds.kmeans} or default name \code{kmeans.newobj}
 }
 \description{
-This function is similar to the native R function 'kmeans' from stats
+This function is similar to the R function 'fviz_dend' from the factoextra package
 }
 \details{
-The function calls the server-side function \code{kmeansDS} that computes the
-k-means clustering of a data set (type 'data.frame' or 'matrix'). 
-The function creates a new object on the server-side, which is of class 'kmeans'.
+The function computes the dendrogram without any labels to prevent any disclosures.
 The new object is named by the user using the \code{newobj} argument, otherwise it is named \code{kmeans.newobj} by default.
 }
 \author{

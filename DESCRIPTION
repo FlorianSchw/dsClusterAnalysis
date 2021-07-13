@@ -9,6 +9,8 @@ Description: Server side functions to perform non-disclosive cluster analysis wi
 Depends: 
   R(>= 4.0.0)
 Options: datashield.privacyLevel=5
+Imports:
+  factoextra(>= 1.0.7)
 AggregateMethods:
   clusterPlotDS
 AssignMethods:
