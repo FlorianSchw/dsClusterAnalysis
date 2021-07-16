@@ -10,9 +10,12 @@ Depends:
   R(>= 4.0.0)
 Options: datashield.privacyLevel=5
 Imports:
-  factoextra(>= 1.0.7)
+  factoextra(>= 1.0.7),
+  NbClust(>= 3.0)
 AggregateMethods:
-  clusterPlotDS
+  clusterPlotDS,
+  nbclustDS,
+  nbclustVisualDS
 AssignMethods:
   cutreeDS,
   distDS,

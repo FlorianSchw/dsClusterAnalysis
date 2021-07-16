@@ -21,14 +21,14 @@
 
 
 
-clusterPlotDS <- function(df.name, k, h, k_colors, color_labels_by_k, rect, main, xlab, ylab){
+clusterPlotDS <- function(df.name, k, h, k_colors, palette, show_labels = FALSE, color_labels_by_k){
   
   
   df.name <- eval(parse(text=df.name), envir = parent.frame())  
   
-  
+  #k, h, k_colors, color_labels_by_k, rect, main, xlab, ylab
   # Computing k-means clustering of the data set
-  result <- factoextra::fviz_dend(df.name, k, h, k_colors, show_labels = FALSE, rect, color_labels_by_k, main, xlab, ylab)  
+  result <- factoextra::fviz_dend(x = df.name, k = k, h = h, k_colors = k_colors, palette = palette, show_labels = FALSE, color_labels_by_k = color_labels_by_k)  
   output <- result
   
   # Assigning the k-means clustering object to the server-side

@@ -9,11 +9,9 @@ clusterPlotDS(
   k,
   h,
   k_colors,
-  color_labels_by_k,
-  rect,
-  main,
-  xlab,
-  ylab
+  palette,
+  show_labels = FALSE,
+  color_labels_by_k
 )
 }
 \arguments{
