@@ -23,15 +23,11 @@ clusterPlotDS(
 
 \item{k_colors}{is a vector containing colors to be used for groups}
 
+\item{palette}{is a vector containing colors}
+
+\item{show_labels}{is a logical whether labels are shown in the plot. Always set to FALSE in the server side function}
+
 \item{color_labels_by_k}{is a logical value which colors the branches by group when k is not NULL}
-
-\item{rect}{is a logical value which specifies whether to add a rectangle around groups when k is not NULL}
-
-\item{main}{is the main title of the plot}
-
-\item{xlab}{is a title for the x axis}
-
-\item{ylab}{is a title for the y axis}
 }
 \value{
 the object specified by the \code{newobj} argument of \code{ds.kmeans} or default name \code{kmeans.newobj}

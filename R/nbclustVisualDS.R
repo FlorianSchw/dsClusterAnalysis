@@ -16,6 +16,9 @@
 #' @return a ggplot2 image suggesting optimal number of clusters
 #' @author Florian Schwarz for the German Institute of Human Nutrition
 #' @importFrom factoextra fviz_nbclust
+#' @importFrom cluster pam
+#' @importFrom cluster clara
+#' @importFrom cluster fanny
 #' @export
 #' 
 
@@ -31,7 +34,7 @@ nbclustVisualDS <- function(df.name, FUNcluster, method, diss, k.max, nboot, ver
     
   
   # Computing k-means clustering of the data set
-  result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = kmeans, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
+  result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = stats::kmeans, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
   output <- result
   
   } else if(identical(FUNcluster, "hcut")){ 

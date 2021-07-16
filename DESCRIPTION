@@ -11,7 +11,8 @@ Depends:
 Options: datashield.privacyLevel=5
 Imports:
   factoextra(>= 1.0.7),
-  NbClust(>= 3.0)
+  NbClust(>= 3.0),
+  cluster
 AggregateMethods:
   clusterPlotDS,
   nbclustDS,

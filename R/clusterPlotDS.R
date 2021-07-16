@@ -7,11 +7,9 @@
 #' @param k specifies the number of clusters in which the tree should be cut 
 #' @param h specifies the height of a tree at which the tree should be cut
 #' @param k_colors is a vector containing colors to be used for groups
+#' @param palette is a vector containing colors
+#' @param show_labels is a logical whether labels are shown in the plot. Always set to FALSE in the server side function 
 #' @param color_labels_by_k is a logical value which colors the branches by group when k is not NULL
-#' @param rect is a logical value which specifies whether to add a rectangle around groups when k is not NULL
-#' @param main is the main title of the plot 
-#' @param xlab is a title for the x axis 
-#' @param ylab is a title for the y axis 
 #' @return the object specified by the \code{newobj} argument of \code{ds.kmeans} or default name \code{kmeans.newobj}
 #' @author Florian Schwarz for the German Institute of Human Nutrition
 #' @importFrom factoextra fviz_dend
