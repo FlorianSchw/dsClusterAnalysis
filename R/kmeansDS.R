@@ -11,6 +11,7 @@
 #' @param nstart relates to the number of random sets if clusters is a number and not a set of initial cluster centers
 #' @param algorithm refers to the algorithm of calculating the kmeans and can be either 'Hartigan-Wong', 'Lloyd', 'Forgy' or 'MacQueen' 
 #' @param trace logical or Integer number tracing information on the progress of the algorithm
+#' @param seed is an integer for setSeed
 #' @return the object specified by the \code{newobj} argument of \code{ds.kmeans} or default name \code{kmeans.newobj}
 #' @author Florian Schwarz for the German Institute of Human Nutrition
 #' @export
@@ -19,13 +20,20 @@
 
 
 
-kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE){
+kmeansDS <- function(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE, seed){
 
 
   df.name <- eval(parse(text=df.name), envir = parent.frame())  
   
   
+ # check for NA objects
+   if(any(is.na(df.name))){
+    stop("The data frames contains NAs.", call.=FALSE)
+   }  
+  
+  
   # Computing k-means clustering of the data set
+  set.seed(seed)
   result <- stats::kmeans(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)  
   output <- result[[1]]
 

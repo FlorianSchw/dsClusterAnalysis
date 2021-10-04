@@ -5,7 +5,7 @@
 \title{Plots hierarchical cluster}
 \usage{
 clusterPlotDS(
-  df.name,
+  tree,
   k,
   h,
   k_colors,
@@ -15,11 +15,11 @@ clusterPlotDS(
 )
 }
 \arguments{
-\item{df.name}{is a string character of the data set}
+\item{tree}{is a string character of the data set}
 
 \item{k}{specifies the number of clusters in which the tree should be cut}
 
-\item{h}{specifies the height of a tree at which the tree should be cut}
+\item{h}{specifies the height of a tree at which the tree should be cut. If both, k and h, are given, k overrides h.}
 
 \item{k_colors}{is a vector containing colors to be used for groups}
 

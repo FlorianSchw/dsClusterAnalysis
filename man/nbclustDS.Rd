@@ -4,7 +4,17 @@
 \alias{nbclustDS}
 \title{Determines optimal number of clusters for dataset}
 \usage{
-nbclustDS(df.name, diss, distance, min.nc, max.nc, method, index, alphaBeale)
+nbclustDS(
+  df.name,
+  diss,
+  distance,
+  min.nc,
+  max.nc,
+  method,
+  index,
+  alphaBeale,
+  seed
+)
 }
 \arguments{
 \item{df.name}{is a string character of the data set and can be either a matrix or data frame}
@@ -22,6 +32,8 @@ nbclustDS(df.name, diss, distance, min.nc, max.nc, method, index, alphaBeale)
 \item{index}{describes the clustering index and can be either "kl", "ch", "hartigan", "ccc", "scott", "marriot", "trcovw", "tracew", "friedman", "rubin", "cindex", "db", "silhouette", "duda", "pseudot2", "beale", "ratkowsky", "ball", "ptbiserial", "gap", "frey", "mcclain", "gamma", "gplus", "tau", "dunn", "hubert", "sdindex", "dindex", "sdbw", "all" or "alllong"}
 
 \item{alphaBeale}{value for "beale" clustering index}
+
+\item{seed}{is an integer number for random start point}
 }
 \value{
 a ggplot2 image suggesting optimal number of clusters

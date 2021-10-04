@@ -4,7 +4,7 @@
 \alias{kmeansDS}
 \title{Conducts k-means clustering of a given data set}
 \usage{
-kmeansDS(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)
+kmeansDS(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE, seed)
 }
 \arguments{
 \item{df.name}{is a string character of the data set}
@@ -18,6 +18,8 @@ kmeansDS(df.name, clusters, iter.max, nstart, algorithm, trace = FALSE)
 \item{algorithm}{refers to the algorithm of calculating the kmeans and can be either 'Hartigan-Wong', 'Lloyd', 'Forgy' or 'MacQueen'}
 
 \item{trace}{logical or Integer number tracing information on the progress of the algorithm}
+
+\item{seed}{is an integer for setSeed}
 }
 \value{
 the object specified by the \code{newobj} argument of \code{ds.kmeans} or default name \code{kmeans.newobj}

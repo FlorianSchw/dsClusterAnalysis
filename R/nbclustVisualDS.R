@@ -16,9 +16,7 @@
 #' @return a ggplot2 image suggesting optimal number of clusters
 #' @author Florian Schwarz for the German Institute of Human Nutrition
 #' @importFrom factoextra fviz_nbclust
-#' @importFrom cluster pam
-#' @importFrom cluster clara
-#' @importFrom cluster fanny
+#' @import cluster
 #' @export
 #' 
 
@@ -30,44 +28,95 @@ nbclustVisualDS <- function(df.name, FUNcluster, method, diss, k.max, nboot, ver
   
   df.name <- eval(parse(text=df.name), envir = parent.frame())  
   
-  if(identical(FUNcluster, "kmeans")){
-    
   
   # Computing k-means clustering of the data set
+  if(identical(FUNcluster, "kmeans")){
+   
+  if(any(is.na(df.name))){
+     stop("The data frames contains NAs.", call.=FALSE)
+  }   
+     
+  nn <- dim(df.name)[1]
+    
+  if(k.max >= nn){
+    stop("For this clustering method 'k.max' must be between 1 and nrow(df.name).", call.=FALSE)
+  }
+    
   result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = stats::kmeans, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
   output <- result
   
+  
+  
+  
+  # Computing hierarchical clustering of the data set
   } else if(identical(FUNcluster, "hcut")){ 
   
-  # Computing k-means clustering of the data set
+  nn <- dim(df.name)[1]
+    
+  if(k.max >= nn){
+    stop("For this clustering method 'k.max' must be between 1 and nrow(df.name).", call.=FALSE)
+  }
+    
   result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = factoextra::hcut, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
   output <- result
     
+  
+  
+ 
+ 
   } else if(identical(FUNcluster, "cluster::pam")){ 
+   
     
-  # Computing k-means clustering of the data set
+  # Computing cluster::pam clustering of the data set  
+  nn <- dim(df.name)[1]
+    
+  if(k.max >= nn){
+    stop("For this clustering method 'k.max' must be between 1 and nrow(df.name).", call.=FALSE)
+  }
+    
   result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = cluster::pam, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
   output <- result
     
+  
+  
+  
+  # Computing cluster::clara clustering of the data set
   } else if(identical(FUNcluster, "cluster::clara")){ 
+   
+  if(any(is.na(df.name))){
+    stop("The data frames contains NAs.", call.=FALSE)
+  }   
+     
+  nn <- dim(df.name)[1]
     
-  # Computing k-means clustering of the data set
+  if(k.max >= nn){
+    stop("For this clustering method 'k.max' must be between 1 and nrow(df.name).", call.=FALSE)
+  }
+    
   result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = cluster::clara, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
   output <- result
     
+  
+  
+  
+  # Computing cluster::fanny clustering of the data set
   } else if(identical(FUNcluster, "cluster::fanny")){ 
     
-  # Computing k-means clustering of the data set
+  nn <- dim(df.name)[1]
+    
+  if(k.max > (nn/2 - 1)){
+    stop("For this clustering method 'k.max' must be in 1,2, .., n/2 -1.", call.=FALSE)
+  }
+    
   result <- factoextra::fviz_nbclust(x = df.name, FUNcluster = cluster::fanny, method = method, diss = diss, k.max = k.max, nboot = nboot, verbose = verbose, barfill = barfill, barcolor = barcolor, linecolor = linecolor, print.summary = print.summary)  
   output <- result
     
   } 
    
   
-  # Assigning the k-means clustering object to the server-side
+  
+  # Returning the outcome of potentially best number of clusters back to the analyst
   return(output)  
-  
-  
   
 }
 

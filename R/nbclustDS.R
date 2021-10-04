@@ -10,6 +10,7 @@
 #' @param method describes the clustering method and can be either "ward.D2", "single", "complete", "average", "mcquitty", "median", "centroid", "kmeans" or "ward.D"
 #' @param index describes the clustering index and can be either "kl", "ch", "hartigan", "ccc", "scott", "marriot", "trcovw", "tracew", "friedman", "rubin", "cindex", "db", "silhouette", "duda", "pseudot2", "beale", "ratkowsky", "ball", "ptbiserial", "gap", "frey", "mcclain", "gamma", "gplus", "tau", "dunn", "hubert", "sdindex", "dindex", "sdbw", "all" or "alllong"         
 #' @param alphaBeale value for "beale" clustering index
+#' @param seed is an integer number for random start point
 #' @return a ggplot2 image suggesting optimal number of clusters
 #' @author Florian Schwarz for the German Institute of Human Nutrition
 #' @importFrom NbClust NbClust
@@ -17,13 +18,14 @@
 #' 
 
 
-nbclustDS <- function(df.name, diss, distance, min.nc, max.nc, method, index, alphaBeale){
+nbclustDS <- function(df.name, diss, distance, min.nc, max.nc, method, index, alphaBeale, seed){
   
   
   df.name <- eval(parse(text=df.name), envir = parent.frame())  
   
   
   # Computing k-means clustering of the data set
+  set.seed(seed)
   result <- NbClust::NbClust(data = df.name, diss = diss, distance = distance, min.nc = min.nc, max.nc = max.nc, method = method, index = index, alphaBeale = alphaBeale)  
   output <- result
     
