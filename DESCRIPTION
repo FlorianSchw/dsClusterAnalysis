@@ -7,26 +7,30 @@ License: GPL-3 + file LICENSE
 Title: DataSHIELD server side functions for the dsClusterAnalysis package
 Description: Server side functions to perform non-disclosive cluster analysis with DataSHIELD.
 Depends: 
-  R(>= 4.0.0)
-Options: datashield.privacyLevel=5
-Imports:
+  R(>= 4.0.0),
   factoextra(>= 1.0.7),
   NbClust(>= 3.0),
-  cluster
+  cluster,
+  VarSelLCM,
+  dplyr(>= 1.1.1)
+Options: datashield.privacyLevel=5
+Imports:
 AggregateMethods:
   clusterPlotDS,
   nbclustDS,
-  nbclustVisualDS
+  nbclustVisualDS,
+  varSelLcmDS1,
+  varSelLcmDS2
 AssignMethods:
   cutreeDS,
   distDS,
   hclustDS,
-  kmeansDS
-RoxygenNote: 7.1.1
+  kmeansDS,
+  varSelLcmDS3
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 Suggests: 
     rmarkdown,
     knitr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-VignetteBuilder: knitr
