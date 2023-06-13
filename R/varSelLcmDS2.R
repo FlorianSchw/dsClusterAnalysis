@@ -68,8 +68,16 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
       mean <- data_structure[[paste0("Mean_X_",variable_cont[p])]][j]
       sd <- data_structure[[paste0("SD_X_",variable_cont[p])]][j]
       length_1 <- data_structure$Observations[j]
-      var_min <- min(df[[variable_cont[p]]])
-      var_max <- max(df[[variable_cont[p]]])
+
+      
+      if(mean - 2*sd < 0){
+        var_min <- 0
+      } else {
+        var_min <- mean - 2*sd
+      }
+      
+      var_max <- mean + 2*sd
+      
       zzz[[j]] <- rtruncnorm(length_1, mean = mean, sd = sd, a = var_min, b = var_max)
       
     }
@@ -207,17 +215,18 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   
   #### adjustment for NA calculations
   
- # for (uu in 1:length(cols)){
+  for (uu in 1:length(cols)){
     
-  #  current_vector <- FinalResults_DF %>%
-   #   select(contains(cols[uu])) %>%
-    #  rowSums()
+    current_vector <- FinalResults_DF %>%
+      select(contains(cols[uu])) %>%
+      rowSums()
     
-    #FinalResults_DF <- FinalResults_DF %>%
-     # mutate(across(contains(cols[uu]), ~ .x / current_vector * 100))
+    FinalResults_DF <- FinalResults_DF %>%
+      mutate(across(contains(cols[uu]), ~ .x / current_vector * 100))
     
-  #}
+  }
   
+
   
   FinalResults_DF <- subset(FinalResults_DF, select = -c(results_values_final.1,
                                                          Observations))
@@ -251,10 +260,11 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   }
   
   
+
   
   matching_vector <- rep(NA, dim(summaries_dataframe)[1])
 
-  for (n in 1:num.clust){
+  for (n in 1:length(assignments)){
     
     first_iteration <- seq(from = 1, to = num.clust)
     additional_iteration <- seq(from = (n-1)*num.clust + 1, to = n*num.clust)
@@ -267,6 +277,7 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     iter1 <- matching_indiv[seq(from = 1, to = num.clust)]
     iter2 <- matching_indiv[seq(from = num.clust + 1, to = 2*num.clust)]
     
+    
     pos <- c()
     for (ll in 1:length(iter2)){
       
@@ -277,12 +288,14 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   }
   
 
+
   summaries_dataframe$matching <- matching_vector
   
   #dist_obj <- dist(summaries_dataframe[-1])
   #hc_object <- hclust(dist_obj)
   #summaries_dataframe$matching <- cutree(hc_object, k = num.clust)
   
+
 
   collect <- list()
   
@@ -300,7 +313,7 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     
     int.var <- subset(int.var, select = c(2))
     collect[[pp]] <- int.var
-  }
+ }
   
   collect_dataframe <- bind_cols(collect)
   
@@ -308,12 +321,10 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   cluster_intermediate <- as.numeric(apply(collect_dataframe[1:nrow(df),], 1, function(x) names(which.max(table(x)))))
   
   
-  outcome <- list(matching_vector,
-                  summaries_dataframe,
-                  assignments)
+
   
   
-  return(outcome)
+  return(cluster_intermediate)
   
   
   
