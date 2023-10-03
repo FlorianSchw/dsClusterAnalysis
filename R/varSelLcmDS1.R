@@ -34,7 +34,7 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     summarise(across(-any_of(colnames(df[ ,categories])), ~mean(.x, na.rm = TRUE))) %>%
     rename_with(~ paste0("Mean_X_", .), -results_values)
   
-
+  
   initialResults_SD <- modelResults %>%
     group_by(results_values) %>%
     mutate(across(-any_of(colnames(df[ ,categories])), as.numeric)) %>%
@@ -45,7 +45,7 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   observations_clusters <- modelResults %>%
     group_by(results_values) %>%
     summarise(Observations = n())
-
+  
   initialResults <- data.frame(initialResults_Mean, initialResults_SD, observations_clusters)
   
   cols <- colnames(df[, categories])
@@ -96,6 +96,7 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   storing_length <- c()
   missings <- c()
   
+  
   for (cc in 1:dim(probabilities)[1]){
     
     for (yy in 1:length(cols)){
@@ -123,9 +124,10 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
           length_indices_vector <- length(indices_vector)
         }
       }
-      probabilities[indices_vector][cc,] <- smart.round(probabilities[indices_vector][cc,])
+      probabilities[indices_vector][cc,] <- t(smart.round(t(probabilities[indices_vector][cc,])))
     }
   }
+  
   
   
   initialResults[cat_names] <- initialResults[cat_names] + probabilities[cat_names]

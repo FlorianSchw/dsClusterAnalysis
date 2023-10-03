@@ -6,333 +6,249 @@
 #' 
 
 
-varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcores, nbSmall, iterSmall, nbKeep, iterKeep, tolKeep, num.iterations){
+varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcores, nbSmall, iterSmall, nbKeep, iterKeep, tolKeep, num.iterations, initialRun_char_vect, colnames_char_vect, entries_per_study){
   
   df <- eval(parse(text=df), envir = parent.frame())  
   
-  list_other_study_data <- objects(pattern = "StudyData", envir = parent.frame())
+  Test_Obj_Drop_Original <- df %>%
+    mutate(across(where(is.factor), as.character)) %>%
+    mutate(across(where(is.character), as.numeric)) %>%
+    summarise(across(everything(), ~mean(.x, na.rm = TRUE)))
+  
+  
+  
+  pre_information_vector <- as.numeric(unlist(strsplit(initialRun_char_vect, split = ",")))
+  pre_information_colnames <- unlist(strsplit(colnames_char_vect, split = ","))
+  
+  
+  analysed_studies <- length(pre_information_vector) / (length(pre_information_colnames) * num.clust)
+  df_cells <- length(pre_information_colnames) * num.clust
+  
+  #### Analyse which of the summary tables is equal to the study sites df, in order for it to be excluded
+  for (a in seq_along(1:analysed_studies)){
+    
+    information_study <- as.data.frame(matrix(data = pre_information_vector[(1 + (a - 1)* df_cells):(df_cells* a)], nrow = num.clust))
+    colnames(information_study) <- pre_information_colnames
+    
+    
+    variables_of_interest <- colnames(information_study)[which(!(grepl("results_|Observations", colnames(information_study))))]
+    variable_columns <- strsplit(x = variables_of_interest, split =  "_X_", fixed = TRUE)
+    
+    
+    type <- c()
+    variables <- c()
+    expression <- c()
+    for (i in 1:length(variable_columns)){
+      
+      type[i] <- variable_columns[[i]][1]
+      variables[i] <- variable_columns[[i]][2]
+      expression[i] <- variable_columns[[i]][3]
+      
+    }
+    
+    variable_overview <- data.frame(type, variables, expression)
+    
+    not_categ <- variable_overview %>%
+      filter(!type == "CAT")
+    
+    categ <- variable_overview %>%
+      filter(type == "CAT")
+    
+    variable_cont <- unique(not_categ$variables)
+    variable_cat <- unique(categ$variables)
+    
+    
+    Test_Obj_Drop_Add1 <- information_study %>%
+      select(starts_with("Mean_X_")) %>%
+      rename_with(~ stringr::str_replace(., regex("^Mean_X_", ignore_case = TRUE), ""))%>%
+      mutate(across(everything(), ~.x * information_study$Observations)) %>%
+      summarise(across(everything(), sum)) %>%
+      mutate(across(everything(), ~.x / sum(information_study$Observations)))
+    
+    Test_Obj_Drop_Add2 <- information_study %>%
+      select(starts_with("CAT_X_")) %>%
+      rename_with(~ stringr::str_replace(., regex("^CAT_X_", ignore_case = TRUE), ""))%>%
+      summarise(across(everything(), sum)) %>%
+      mutate(sweep(across(everything()), 2, as.numeric(t(categ$expression)), "*")) %>%
+      select(starts_with(variable_cat)) %>%
+      pivot_longer(cols = everything()) %>%
+      mutate(name = sub("_X_.*", "", name)) %>%
+      group_by(name) %>%
+      summarise(value = sum(value, na.rm = TRUE)) %>%
+      pivot_wider() %>%
+      mutate(across(everything(), ~.x / sum(information_study$Observations)))
+    
+    Test_Obj_Drop_Add_Complete <- data.frame(Test_Obj_Drop_Add1, 
+                                             Test_Obj_Drop_Add2)
+    
+    Test_Obj_Drop_Original <- Test_Obj_Drop_Original[, order(colnames(Test_Obj_Drop_Original))]
+    Test_Obj_Drop_Add_Complete <- Test_Obj_Drop_Add_Complete[, order(colnames(Test_Obj_Drop_Add_Complete))]
+    
+    
+    current_information_equal <- all.equal(Test_Obj_Drop_Add_Complete, 
+                                           Test_Obj_Drop_Original)
+    
+    
+    if(identical(current_information_equal, TRUE)){
+      
+      message("Duplicate Dataset Identified.")
+      
+    } else {
+      
+      assign(paste0("StudyDataCreatedForClusteringObj", a), information_study)
+      
+    }
+    
+  }
+  
+  
+  
+  list_other_study_data <- objects(pattern = "StudyDataCreatedForClusteringObj")
   
   
   assignments <- list()
   summaries <- list()
-  
+  store_dfs <- list()
   
   check_df_total <- list()
   
   for (ww in 1:num.iterations){
     
     
-    
-  
-  
-  extension_dfs <- list()
-  for (qqq in 1:length(list_other_study_data)){
-    
-    
-
-  
-  data_structure <- eval(parse(text=list_other_study_data[qqq]), envir = parent.frame())  
-  variable_columns <- strsplit(colnames(data_structure)[which(!(grepl("results_|Observations", colnames(data_structure))))], "_X_", fixed = TRUE)
-  
-  type <- c()
-  variables <- c()
-  expression <- c()
-  for (i in 1:length(variable_columns)){
-    
-    type[i] <- variable_columns[[i]][1]
-    variables[i] <- variable_columns[[i]][2]
-    expression[i] <- variable_columns[[i]][3]
-    
-  }
-  
-  variable_overview <- data.frame(type, variables, expression)
-  
-  
-  not_categ <- variable_overview %>%
-    filter(!type == "CAT")
-  
-  categ <- variable_overview %>%
-    filter(type == "CAT")
-  
-  variable_cont <- unique(not_categ$variables)
-  
-  variable_cat <- unique(categ$variables)
-  
-  zzz <- list()
-  data_extension <- df[1:sum(data_structure$Observations),]
-  data_extension[,] <-  NA
-  
-  for (p in 1:length(variable_cont)){
-    for (j in 1:dim(data_structure)[1]) {
+    extension_dfs <- list()
+    for (qqq in 1:length(list_other_study_data)){
       
-      mean <- data_structure[[paste0("Mean_X_",variable_cont[p])]][j]
-      sd <- data_structure[[paste0("SD_X_",variable_cont[p])]][j]
-      length_1 <- data_structure$Observations[j]
-
+      data_structure <- eval(parse(text=list_other_study_data[qqq]))  
       
-      if(mean - 2*sd < 0){
-        var_min <- 0
-      } else {
-        var_min <- mean - 2*sd
+      zzz <- list()
+      data_extension <- df[1:sum(data_structure$Observations),]
+      data_extension[,] <-  NA
+      
+      for (p in 1:length(variable_cont)){
+        for (j in 1:dim(data_structure)[1]) {
+          
+          mean <- data_structure[[paste0("Mean_X_",variable_cont[p])]][j]
+          sd <- data_structure[[paste0("SD_X_",variable_cont[p])]][j]
+          length_1 <- data_structure$Observations[j]
+          
+          
+          if(mean - 2*sd < 0){
+            var_min <- 0
+          } else {
+            var_min <- mean - 2*sd
+          }
+          
+          var_max <- mean + 2*sd
+          
+          zzz[[j]] <- rtruncnorm(length_1, mean = mean, sd = sd, a = var_min, b = var_max)
+          
+        }
+        
+        tmp_collect <- unlist(zzz)
+        data_extension[[variable_cont[p]]] <- tmp_collect
+        
       }
       
-      var_max <- mean + 2*sd
       
-      zzz[[j]] <- rtruncnorm(length_1, mean = mean, sd = sd, a = var_min, b = var_max)
+      
+      for (p in 1:length(variable_cat)){
+        
+        current_cat_variable <- data_structure[which(grepl(paste0("_X_" , variable_cat[p], "_X_"), colnames(data_structure), fixed = TRUE))]
+        uuu <- list()
+        
+        for (j in 1:dim(data_structure)[1]){
+          
+          lll <- list()
+          
+          for (k in 1:dim(current_cat_variable)[2]){
+            
+            lll[[k]] <- rep(as.numeric(strsplit(colnames(current_cat_variable[k]), "_X_")[[1]][3]), current_cat_variable[j,k])
+            
+          } 
+          
+          tmp_cat <- sample(unlist(lll))
+          uuu[[j]] <- tmp_cat
+          
+        }
+        
+        tmp_coll <- unlist(uuu)
+        data_extension[[variable_cat[p]]] <- as.factor(tmp_coll)
+        
+      }
+      
+      for (u in 1:length(colnames(df))){
+        
+        if(class(df[[u]]) == "integer"){
+          
+          data_extension[[u]] <- as.integer(round(data_extension[[u]]))
+          
+        }
+        
+      }
+      
+      
+      
+      extension_dfs[[qqq]] <- data_extension
+      
+      #stop("Problem here")
+      
+      
+      #### qqq ends here
       
     }
     
-    tmp_collect <- unlist(zzz)
-    data_extension[[variable_cont[p]]] <- tmp_collect
+    data_extension_full <- bind_rows(extension_dfs)
+    
+    store_dfs[[ww]] <- data_extension_full
     
   }
+  #stop("Problem here")
   
-  for (p in 1:length(variable_cat)){
-    
-    current_cat_variable <- data_structure[which(grepl(paste0("_X_" , variable_cat[p], "_X_"), colnames(data_structure), fixed = TRUE))]
-    uuu <- list()
-
-    for (j in 1:dim(data_structure)[1]){
-      
-      lll <- list()
-
-      for (k in 1:dim(current_cat_variable)[2]){
-      
-        lll[[k]] <- rep(as.numeric(strsplit(colnames(current_cat_variable[k]), "_X_")[[1]][3]), current_cat_variable[j,k])
-    
-      } 
-      
-      tmp_cat <- sample(unlist(lll))
-      uuu[[j]] <- tmp_cat
-      
-    }
-    
-    tmp_coll <- unlist(uuu)
-    data_extension[[variable_cat[p]]] <- as.factor(tmp_coll)
-    
-  }
+  additional_dfs <- bind_rows(store_dfs)
+  dataframe_pooled <- rbind(df, additional_dfs)
   
-  for (u in 1:length(colnames(df))){
-    
-    if(class(df[[u]]) == "integer"){
-      
-      data_extension[[u]] <- as.integer(round(data_extension[[u]]))
-     
-    }
-    
-  }
-  
-  
-  
-  extension_dfs[[qqq]] <- data_extension
-  
-  
-  
-  #### qqq ends here
-  
-  }
-  
-  
-  data_extension_full <- bind_rows(extension_dfs)
-  
-  dataframe_pooled <- rbind(df, data_extension_full)
+  #stop("Problem here")
   
   
   set.seed(42)
   FinalResults <- VarSelLCM::VarSelCluster(x = dataframe_pooled,
-                                      gvals = num.clust,
-                                      vbleSelec = vbleSelec,
-                                      crit.varsel = crit.varsel,
-                                      initModel = initModel,
-                                      nbcores = nbcores,
-                                      nbSmall = nbSmall,
-                                      iterSmall = iterSmall,
-                                      nbKeep = nbKeep,
-                                      iterKeep = iterKeep,
-                                      tolKeep = tolKeep) 
-  
-  set.seed(NULL)
-  
-  check_df_total[[ww]] <- dataframe_pooled
-  
-
-
-  ##### Here needs to be the end of the iteration process
-  
-  tryCatch({
-    
+                                           gvals = num.clust,
+                                           vbleSelec = vbleSelec,
+                                           crit.varsel = crit.varsel,
+                                           initModel = initModel,
+                                           nbcores = nbcores,
+                                           nbSmall = nbSmall,
+                                           iterSmall = iterSmall,
+                                           nbKeep = nbKeep,
+                                           iterKeep = iterKeep,
+                                           tolKeep = tolKeep) 
   
   
-  categories_final <- sapply(dataframe_pooled, is.factor)
   results_values_final <- fitted(FinalResults)
-  modelResults_final <- data.frame(dataframe_pooled, results_values_final)
-  
-  
-  FinalResults_Mean <- modelResults_final %>%
-    group_by(results_values_final) %>%
-    mutate(across(everything(), as.numeric)) %>%
-    summarise(across(all_of(variable_cont), ~mean(.x, na.rm = TRUE)), .groups = "drop") %>%
-    rename_with(~ paste0("Mean_X_", .), -results_values_final)
-  
-
-
-  
-  observations_clusters_final <- modelResults_final %>%
-    group_by(results_values_final) %>%
-    summarise(Observations = n())
-  
-  FinalResults_DF <- data.frame(FinalResults_Mean, observations_clusters_final)
-  
-  cols <- colnames(dataframe_pooled[, categories_final])
-  cols_levels <- list()
-  
-  for (i in seq_along(cols)){
-    
-    cols_levels[[i]] <- levels(dataframe_pooled[[cols[i]]])
-    
-  }
-  
-  cat_names <- c()
-  count <- 1
-  
-  for (p in seq_along(cols_levels)){
-    for (k in 1:length(cols_levels[[p]])){
-      
-      cat_names[count] <- paste0("CAT_X_", cols[p], "_X_", cols_levels[[p]][k])
-      count <- count + 1
-      
-    }
-  }
-  
-  
-  for (i in 1:length(FinalResults_DF$results_values_final)){
-    for (p in 1:length(cat_names)){
-      
-      FinalResults_DF[[cat_names[p]]][i] <- length(modelResults_final[ , strsplit(cat_names[p], "_X_")[[1]][2]][which(modelResults_final$results_values_final == FinalResults_DF$results_values_final[i] & modelResults_final[ , strsplit(cat_names[p], "_X_")[[1]][2]] == as.numeric(strsplit(cat_names[p], "_X_")[[1]][3]))])/length(FinalResults_DF$Observations)
-      
-    }
-  }
-  
-  #### adjustment for NA calculations
-  
-  for (uu in 1:length(cols)){
-    
-    current_vector <- FinalResults_DF %>%
-      select(contains(cols[uu])) %>%
-      rowSums()
-    
-    FinalResults_DF <- FinalResults_DF %>%
-      mutate(across(contains(cols[uu]), ~ .x / current_vector * 100))
-    
-  }
-  
-
-  
-  FinalResults_DF <- subset(FinalResults_DF, select = -c(results_values_final.1,
-                                                         Observations))
-  
-  
-  assignments[[ww]] <- fitted(FinalResults)
-  summaries[[ww]] <- FinalResults_DF
-  
-  
-  
-  },
-  #### Placeholder for better version
-  error = function(e){
-    message("DS2 Error in Server")
-    print(e)
-  }
-  )
-  
-  
-  }
-  
-  
-  if(length(assignments) == 1){
-    #assignments_dataframe <- assignments[[1]]
-    summaries_dataframe <- summaries[[1]]
-  }
-  
-  if(!(length(assignments) == 1)){
-    #assignments_dataframe <- bind_rows(lapply(assignments, as.data.frame.list))
-    summaries_dataframe <- bind_rows(summaries)
-  }
-  
-  
-
-  
-  matching_vector <- rep(NA, dim(summaries_dataframe)[1])
-
-  for (n in 1:length(assignments)){
-    
-    first_iteration <- seq(from = 1, to = num.clust)
-    additional_iteration <- seq(from = (n-1)*num.clust + 1, to = n*num.clust)
-
-    matching_indiv <- VarSelLCM::VarSelCluster(x = summaries_dataframe[c(first_iteration, additional_iteration),-c(1)],
-                                               gvals = num.clust)@partitions@zMAP
-    
-    matching_vector[first_iteration] <- 1:num.clust
-    
-    iter1 <- matching_indiv[seq(from = 1, to = num.clust)]
-    iter2 <- matching_indiv[seq(from = num.clust + 1, to = 2*num.clust)]
-    
-    
-    pos <- c()
-    for (ll in 1:length(iter2)){
-      
-      pos[ll] <- which(iter1 == iter2[ll])
-      
-    }
-    matching_vector[additional_iteration] <- pos
-  }
-  
-
-
-  summaries_dataframe$matching <- matching_vector
-  
-  #dist_obj <- dist(summaries_dataframe[-1])
-  #hc_object <- hclust(dist_obj)
-  #summaries_dataframe$matching <- cutree(hc_object, k = num.clust)
-  
-
-
-  collect <- list()
-  
-  for(pp in 1:length(assignments)){
-    match <- rep(NA,length(assignments[[1]]))
-    int.var <- data.frame(assignments[[pp]], match)
-    
-    for (ee in 1:length(assignments[[1]])){
-      
-      
-      int.var$match[ee] <- summaries_dataframe$matching[(1+(pp-1)*num.clust):(num.clust+(pp-1)*num.clust)][which(summaries_dataframe$results_values_final[(1+(pp-1)*num.clust):(num.clust+(pp-1)*num.clust)] == int.var[ee,1])]
-      
-      
-    }
-    
-    int.var <- subset(int.var, select = c(2))
-    collect[[pp]] <- int.var
- }
-  
-  collect_dataframe <- bind_cols(collect)
-  
-  
-  cluster_intermediate <- as.numeric(apply(collect_dataframe[1:nrow(df),], 1, function(x) names(which.max(table(x)))))
-  
-  
-
-  
-  
-  return(cluster_intermediate)
+  results_values <- results_values_final[1:nrow(df)]
   
   
   
   
-
+  
+  
+  outcome <- list(results_values,
+                  FinalResults)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return(outcome)
+  
+  
+  
+  
+  
 }
-  
-  
-  
-  
-
