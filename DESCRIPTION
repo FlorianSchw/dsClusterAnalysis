@@ -21,17 +21,13 @@ AggregateMethods:
   nbclustDS,
   nbclustVisualDS,
   varSelLcmDS1,
-  varSelLcmDS3,
-  varSelLcm_DA_DS1,
-  varSelLcm_DA_DS2b
+  varSelLcmDS3
 AssignMethods:
   cutreeDS,
   distDS,
   hclustDS,
   kmeansDS,
   varSelLcmDS2,
-  varSelLcm_DA_DS2,
-  varSelLcm_AlternateDS2,
   varSelLcmDS4
 RoxygenNote: 7.2.3
 Encoding: UTF-8
