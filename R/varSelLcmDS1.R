@@ -46,6 +46,9 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     group_by(results_values) %>%
     summarise(Observations = n())
   
+  disclosure_risk_numeric <- observations_clusters
+  
+  
   initialResults <- data.frame(initialResults_Mean, initialResults_SD, observations_clusters)
   
   cols <- colnames(df[, categories])
@@ -88,6 +91,7 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     }
   }
   
+  disclosure_risk_factors <- initialResults[, cat_names]
   
   probabilities <- initialResults[, cat_names]
   
@@ -133,6 +137,33 @@ varSelLcmDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   initialResults[cat_names] <- initialResults[cat_names] + probabilities[cat_names]
   
   outcome <- initialResults
+  
+  
+  #### Disclosure Risk Testing for clusters in general & factor levels
+  
+  cell_count_threshold <- dsBase::listDisclosureSettingsDS()
+  nfilter.tab <- as.numeric(cell_count_threshold$nfilter.tab)
+  
+  invalid_clusters <- (sum(disclosure_risk_numeric$Observations < nfilter.tab &
+                           disclosure_risk_numeric$Observations > 0)>=1)
+  
+  
+  if(invalid_clusters){
+    stop(paste0("Initial cluster creation caused one cluster to have between 1 and ", nfilter.tab-1, " observations."))
+  }
+  
+  
+  invalid_clusters_factors <- (sum(disclosure_risk_factors < nfilter.tab &
+                                   disclosure_risk_factors > 0)>=1)
+  
+  
+  if(invalid_clusters_factors){
+    stop(paste0("Initial cluster creation caused one categorical variable to have between 1 and ", nfilter.tab-1, " observations in one cluster."))
+  }
+  
+  
+  
+  
   
   # Assigns the resulting vector with the cluster numbers to the server side  
   #### should be initial Results but for testing purposes is modelResults

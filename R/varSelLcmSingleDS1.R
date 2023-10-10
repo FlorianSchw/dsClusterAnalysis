@@ -1,29 +1,32 @@
 #'
 #' @import VarSelLCM
 #' @import dplyr
-#' @import truncnorm
-#' @import clusterSim
 #' @export
 #' 
 
 
-varSelLcmDS3 <- function(df){
+varSelLcmSingleDS1 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcores, nbSmall, iterSmall, nbKeep, iterKeep, tolKeep){
   
   df <- eval(parse(text=df), envir = parent.frame())  
   
-  cluster_pre <- eval(parse(text="cluster_pre"), envir = parent.frame())[[1]]
-  FinalResults <- eval(parse(text="cluster_pre"), envir = parent.frame())[[2]]
   
-  results_values_final <- cluster_pre
-  results_values <- results_values_final[1:nrow(df)]
-  
-  
+  # Cuts the tree
+  results <- VarSelLCM::VarSelCluster(x = df,
+                                      gvals = num.clust,
+                                      vbleSelec = vbleSelec,
+                                      crit.varsel = crit.varsel,
+                                      initModel = initModel,
+                                      nbcores = nbcores,
+                                      nbSmall = nbSmall,
+                                      iterSmall = iterSmall,
+                                      nbKeep = nbKeep,
+                                      iterKeep = iterKeep,
+                                      tolKeep = tolKeep) 
   
   categories <- sapply(df, is.factor)
   colNum <- ncol(df)
-  
+  results_values <- fitted(results)
   modelResults <- data.frame(df, results_values)
-  
   
   initialResults_Mean <- modelResults %>%
     group_by(results_values) %>%
@@ -32,19 +35,21 @@ varSelLcmDS3 <- function(df){
     rename_with(~ paste0("Mean_X_", .), -results_values)
   
   
+  initialResults_SD <- modelResults %>%
+    group_by(results_values) %>%
+    mutate(across(-any_of(colnames(df[ ,categories])), as.numeric)) %>%
+    summarise(across(-any_of(colnames(df[ ,categories])), ~sd(.x, na.rm = TRUE))) %>%
+    rename_with(~ paste0("SD_X_", .), -results_values)
+  
+  
   observations_clusters <- modelResults %>%
     group_by(results_values) %>%
     summarise(Observations = n())
   
-  initialResults <- data.frame(initialResults_Mean, 
-                               observations_clusters)
-  
-  
   disclosure_risk_numeric <- observations_clusters
   
   
-  # stop("after init")
-  
+  initialResults <- data.frame(initialResults_Mean, initialResults_SD, observations_clusters)
   
   cols <- colnames(df[, categories])
   cols_levels <- list()
@@ -131,34 +136,7 @@ varSelLcmDS3 <- function(df){
   
   initialResults[cat_names] <- initialResults[cat_names] + probabilities[cat_names]
   
-  #### test for number of entries at this point for nfilter tab
-  
-  
-  initialResults <- initialResults %>%
-    mutate(across(all_of(cat_names), ~.x / Observations)) %>%
-    select(-all_of(c("results_values.1", "Observations")))
-  
-  
-  #stop("before dplyr")
-  
-  
-  data_db <- df %>%
-    mutate(across(where(is.factor), as.character)) %>%
-    mutate(across(where(is.character), as.numeric)) 
-  
-  #stop("before DB")
-  
-  value_DB <- clusterSim::index.DB(x = data_db,
-                                   cl = cluster_pre)[[1]]
-  
-  outcome <- list(initialResults,
-                  FinalResults@model@names.irrelevant,
-                  FinalResults@criteria@discrim,
-                  FinalResults@criteria@loglikelihood,
-                  FinalResults@criteria@AIC,
-                  FinalResults@criteria@BIC,
-                  FinalResults@criteria@ICL,
-                  value_DB)
+  outcome <- initialResults
   
   
   #### Disclosure Risk Testing for clusters in general & factor levels
@@ -167,40 +145,30 @@ varSelLcmDS3 <- function(df){
   nfilter.tab <- as.numeric(cell_count_threshold$nfilter.tab)
   
   invalid_clusters <- (sum(disclosure_risk_numeric$Observations < nfilter.tab &
-                             disclosure_risk_numeric$Observations > 0)>=1)
+                           disclosure_risk_numeric$Observations > 0)>=1)
   
   
   if(invalid_clusters){
-    stop(paste0("Final cluster creation caused one cluster to have between 1 and ", nfilter.tab-1, " observations."))
+    stop(paste0("Cluster creation caused one cluster to have between 1 and ", nfilter.tab-1, " observations."))
   }
   
   
   invalid_clusters_factors <- (sum(disclosure_risk_factors < nfilter.tab &
-                                     disclosure_risk_factors > 0)>=1)
+                                   disclosure_risk_factors > 0)>=1)
   
   
   if(invalid_clusters_factors){
-    stop(paste0("Final cluster creation caused one categorical variable to have between 1 and ", nfilter.tab-1, " observations in one cluster."))
+    stop(paste0("Cluster creation caused one categorical variable to have between 1 and ", nfilter.tab-1, " observations in one cluster."))
   }
   
   
   
   
   
-  
-  
-  
-  return(outcome)
-  
-  
+  # Assigns the resulting vector with the cluster numbers to the server side  
+  #### should be initial Results but for testing purposes is modelResults
+  return(results_values)
   
   
   
 }
-
-
-
-
-
-
-

@@ -28,7 +28,8 @@ AssignMethods:
   hclustDS,
   kmeansDS,
   varSelLcmDS2,
-  varSelLcmDS4
+  varSelLcmDS4,
+  varSelLcmSingleDS1
 RoxygenNote: 7.2.3
 Encoding: UTF-8
 Suggests: 

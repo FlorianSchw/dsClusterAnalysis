@@ -10,12 +10,6 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
   
   df <- eval(parse(text=df), envir = parent.frame())  
   
-  Test_Obj_Drop_Original <- df %>%
-    mutate(across(where(is.factor), as.character)) %>%
-    mutate(across(where(is.character), as.numeric)) %>%
-    summarise(across(everything(), ~mean(.x, na.rm = TRUE)))
-  
-  
   
   pre_information_vector <- as.numeric(unlist(strsplit(initialRun_char_vect, split = ",")))
   pre_information_colnames <- unlist(strsplit(colnames_char_vect, split = ","))
@@ -74,12 +68,35 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
       pivot_longer(cols = everything()) %>%
       mutate(name = sub("_X_.*", "", name)) %>%
       group_by(name) %>%
-      summarise(value = sum(value, na.rm = TRUE)) %>%
+      summarise(value = sum(value, na.rm = FALSE)) %>%
       pivot_wider() %>%
       mutate(across(everything(), ~.x / sum(information_study$Observations)))
     
     Test_Obj_Drop_Add_Complete <- data.frame(Test_Obj_Drop_Add1, 
                                              Test_Obj_Drop_Add2)
+    
+    
+    variable_all <- c(variable_cat,
+                      variable_cont)
+    
+    variables_in_df <- colnames(df)
+    
+    for (i in 1:length(variable_all)){
+      if(!(variable_all[i] %in% colnames(df))){
+        
+        dummy <- as.numeric(c(rep(NA, dim(df)[1])))
+        df$dummy <- dummy
+        names(df)[names(df) == "dummy"] <- variable_all[i]
+        
+      }
+    }
+    
+    
+    Test_Obj_Drop_Original <- df %>%
+      mutate(across(where(is.factor), as.character)) %>%
+      mutate(across(where(is.character), as.numeric)) %>%
+      summarise(across(everything(), ~mean(.x, na.rm = TRUE)))
+    
     
     Test_Obj_Drop_Original <- Test_Obj_Drop_Original[, order(colnames(Test_Obj_Drop_Original))]
     Test_Obj_Drop_Add_Complete <- Test_Obj_Drop_Add_Complete[, order(colnames(Test_Obj_Drop_Add_Complete))]
@@ -124,29 +141,38 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
       data_extension <- df[1:sum(data_structure$Observations),]
       data_extension[,] <-  NA
       
+      
       for (p in 1:length(variable_cont)){
+        
         for (j in 1:dim(data_structure)[1]) {
+          
           
           mean <- data_structure[[paste0("Mean_X_",variable_cont[p])]][j]
           sd <- data_structure[[paste0("SD_X_",variable_cont[p])]][j]
           length_1 <- data_structure$Observations[j]
           
-          
-          if(mean - 2*sd < 0){
-            var_min <- 0
-          } else {
-            var_min <- mean - 2*sd
-          }
-          
-          var_max <- mean + 2*sd
-          
-          zzz[[j]] <- rtruncnorm(length_1, mean = mean, sd = sd, a = var_min, b = var_max)
+          if(!(all(is.na(data_structure[[paste0("Mean_X_",variable_cont[p])]])))){
+            
+            
+            if(mean - 2*sd < 0){
+              var_min <- 0
+            } else {
+              var_min <- mean - 2*sd
+            }
+            
+            var_max <- mean + 2*sd
+            
+            zzz[[j]] <- rtruncnorm(length_1, mean = mean, sd = sd, a = var_min, b = var_max)
+            
+          } 
           
         }
         
         tmp_collect <- unlist(zzz)
-        data_extension[[variable_cont[p]]] <- tmp_collect
         
+        if(!(all(is.na(data_structure[[paste0("Mean_X_",variable_cont[p])]])))){
+          data_extension[[variable_cont[p]]] <- tmp_collect
+        }
       }
       
       
@@ -154,25 +180,44 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
       for (p in 1:length(variable_cat)){
         
         current_cat_variable <- data_structure[which(grepl(paste0("_X_" , variable_cat[p], "_X_"), colnames(data_structure), fixed = TRUE))]
-        uuu <- list()
         
-        for (j in 1:dim(data_structure)[1]){
+        if(!(all(is.na(current_cat_variable)))){
           
-          lll <- list()
           
-          for (k in 1:dim(current_cat_variable)[2]){
+          
+          uuu <- list()
+          
+          for (j in 1:dim(data_structure)[1]){
             
-            lll[[k]] <- rep(as.numeric(strsplit(colnames(current_cat_variable[k]), "_X_")[[1]][3]), current_cat_variable[j,k])
+            lll <- list()
             
-          } 
+            for (k in 1:dim(current_cat_variable)[2]){
+              
+              lll[[k]] <- rep(as.numeric(strsplit(colnames(current_cat_variable[k]), "_X_")[[1]][3]), current_cat_variable[j,k])
+              
+            } 
+            
+            tmp_cat <- sample(unlist(lll))
+            uuu[[j]] <- tmp_cat
+            
+          }
+        }
+        
+        
+        if(!(all(is.na(current_cat_variable)))){
           
-          tmp_cat <- sample(unlist(lll))
-          uuu[[j]] <- tmp_cat
+          tmp_coll <- unlist(uuu)
+          data_extension[[variable_cat[p]]] <- as.factor(tmp_coll)
           
         }
         
-        tmp_coll <- unlist(uuu)
-        data_extension[[variable_cat[p]]] <- as.factor(tmp_coll)
+        if((all(is.na(current_cat_variable)))){
+          
+          data_extension[[variable_cat[p]]] <- as.factor(c(rep(NA, sum(data_structure$Observations))))
+          
+        }
+        
+        
         
       }
       
@@ -190,7 +235,7 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
       
       extension_dfs[[qqq]] <- data_extension
       
-      #stop("Problem here")
+      
       
       
       #### qqq ends here
@@ -202,13 +247,12 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     store_dfs[[ww]] <- data_extension_full
     
   }
-  #stop("Problem here")
   
   additional_dfs <- bind_rows(store_dfs)
   dataframe_pooled <- rbind(df, additional_dfs)
   
-  #stop("Problem here")
-  
+  dataframe_pooled <- dataframe_pooled %>%
+    mutate(across(where(is.character), as.factor)) 
   
   set.seed(42)
   FinalResults <- VarSelLCM::VarSelCluster(x = dataframe_pooled,
@@ -223,25 +267,12 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
                                            iterKeep = iterKeep,
                                            tolKeep = tolKeep) 
   
-  
   results_values_final <- fitted(FinalResults)
   results_values <- results_values_final[1:nrow(df)]
   
   
-  
-  
-  
-  
   outcome <- list(results_values,
                   FinalResults)
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
