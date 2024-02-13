@@ -15,8 +15,7 @@
 #' @param print.summary logical value. If TRUE, the optimal number of clusters are printed 
 #' @return a ggplot2 image suggesting optimal number of clusters
 #' @author Florian Schwarz for the German Institute of Human Nutrition
-#' @importFrom factoextra fviz_nbclust
-#' @import cluster
+#' @import factoextra 
 #' @export
 #' 
 

@@ -12,7 +12,6 @@ Options: datashield.privacyLevel=5
 Imports:
   factoextra(>= 1.0.7),
   NbClust(>= 3.0),
-  cluster,
   VarSelLCM,
   dplyr(>= 1.1.1),
   clusterSim
