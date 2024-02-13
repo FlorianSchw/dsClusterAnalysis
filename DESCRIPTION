@@ -15,12 +15,10 @@ Imports:
   VarSelLCM,
   dplyr(>= 1.1.1),
   truncnorm,
-  clusterSim,
-  cluster
+  clusterSim
 AggregateMethods:
   clusterPlotDS,
   nbclustDS,
-  nbclustVisualDS,
   varSelLcmDS1,
   varSelLcmDS3
 AssignMethods:
