@@ -2,6 +2,7 @@
 #' @import VarSelLCM
 #' @import dplyr
 #' @import truncnorm
+#' @import stringr
 #' @export
 #' 
 
@@ -54,14 +55,14 @@ varSelLcmDS2 <- function(df, num.clust, vbleSelec, crit.varsel, initModel, nbcor
     
     Test_Obj_Drop_Add1 <- information_study %>%
       select(starts_with("Mean_X_")) %>%
-      rename_with(~ stringr::str_replace(., regex("^Mean_X_", ignore_case = TRUE), ""))%>%
+      rename_with(~ stringr::str_replace(., stringr::regex("^Mean_X_", ignore_case = TRUE), ""))%>%
       mutate(across(everything(), ~.x * information_study$Observations)) %>%
       summarise(across(everything(), sum)) %>%
       mutate(across(everything(), ~.x / sum(information_study$Observations)))
     
     Test_Obj_Drop_Add2 <- information_study %>%
       select(starts_with("CAT_X_")) %>%
-      rename_with(~ stringr::str_replace(., regex("^CAT_X_", ignore_case = TRUE), ""))%>%
+      rename_with(~ stringr::str_replace(., stringr::regex("^CAT_X_", ignore_case = TRUE), ""))%>%
       summarise(across(everything(), sum)) %>%
       mutate(sweep(across(everything()), 2, as.numeric(t(categ$expression)), "*")) %>%
       select(starts_with(variable_cat)) %>%
