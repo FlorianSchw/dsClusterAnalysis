@@ -1,8 +1,13 @@
 #'
+#' @title Needs editing
+#' @description Needs editing
+#' @details Needs editing
+#' @param df is a string character of the data set
 #' @import VarSelLCM
 #' @import dplyr
 #' @import truncnorm
 #' @import clusterSim
+#' @import dsBase
 #' @export
 #' 
 
@@ -142,24 +147,23 @@ varSelLcmDS3 <- function(df){
   #stop("before dplyr")
   
   
-  data_db <- df %>%
-    mutate(across(where(is.factor), as.character)) %>%
-    mutate(across(where(is.character), as.numeric)) 
-  
-  #stop("before DB")
-  
-  value_DB <- clusterSim::index.DB(x = data_db,
-                                   cl = cluster_pre)[[1]]
-  
+  # data_db <- df %>%
+  #   mutate(across(where(is.factor), as.character)) %>%
+  #   mutate(across(where(is.character), as.numeric))
+  # 
+  # #stop("before DB")
+  # 
+  # value_DB <- clusterSim::index.DB(x = data_db,
+  #                                  cl = cluster_pre)[[1]]
+
   outcome <- list(initialResults,
                   FinalResults@model@names.irrelevant,
                   FinalResults@criteria@discrim,
                   FinalResults@criteria@loglikelihood,
                   FinalResults@criteria@AIC,
                   FinalResults@criteria@BIC,
-                  FinalResults@criteria@ICL,
-                  value_DB)
-  
+                  FinalResults@criteria@ICL)
+
   
   #### Disclosure Risk Testing for clusters in general & factor levels
   

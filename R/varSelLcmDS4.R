@@ -1,4 +1,10 @@
 #'
+#' @title Needs editing
+#' @description Needs editing
+#' @details Needs editing
+#' @param num.clust specifies the number of clusters for the computation 
+#' @param final_match_char needs editing
+#' @param final_colnames_char needs editing
 #' @export
 #' 
 

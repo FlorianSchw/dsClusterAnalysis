@@ -3,11 +3,11 @@ Type: Package
 Maintainer: <Florian.Schwarz@dife.de>
 Author: <Florian.Schwarz@dife.de>
 Version: 1.0.0
-License: GPL-3 + file LICENSE
+License: GPL-3
 Title: DataSHIELD server side functions for the dsClusterAnalysis package
 Description: Server side functions to perform non-disclosive cluster analysis with DataSHIELD.
 Depends: 
-  R(>= 4.0.0)
+  R(>= 4.1.0)
 Options: datashield.privacyLevel=5
 Imports:
   factoextra(>= 1.0.7),
@@ -16,9 +16,9 @@ Imports:
   dplyr(>= 1.1.1),
   tidyr,
   truncnorm,
-  cluster,
   clusterSim,
-  stringr
+  stringr,
+  dsBase
 AggregateMethods:
   clusterPlotDS,
   nbclustDS,
@@ -37,5 +37,8 @@ Encoding: UTF-8
 Suggests: 
     rmarkdown,
     knitr,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    cluster,
+    remotes
+Remotes: datashield/dsBase
 Config/testthat/edition: 3

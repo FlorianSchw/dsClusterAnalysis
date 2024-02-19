@@ -25,7 +25,13 @@ clusterPlotDS <- function(tree, k, h, k_colors, palette, show_labels = FALSE, co
   tree <- eval(parse(text=tree), envir = parent.frame())  
   
   # Computing k-means clustering of the data set
-  result <- factoextra::fviz_dend(x = tree, k = k, h = h, k_colors = k_colors, palette = palette, show_labels = FALSE, color_labels_by_k = color_labels_by_k)  
+  result <- factoextra::fviz_dend(x = tree, 
+                                  k = k, 
+                                  h = h, 
+                                  k_colors = k_colors, 
+                                  palette = palette, 
+                                  show_labels = FALSE, 
+                                  color_labels_by_k = color_labels_by_k)  
   output <- result
   
   # Assigning the k-means clustering object to the server-side
