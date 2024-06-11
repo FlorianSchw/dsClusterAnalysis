@@ -10,6 +10,7 @@ Depends:
   R(>= 4.1.0)
 Options: datashield.privacyLevel=5
 Imports:
+  Matrix(<=1.6-5),
   factoextra(>= 1.0.7),
   NbClust(>= 3.0),
   VarSelLCM,
