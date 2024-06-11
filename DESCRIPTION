@@ -13,6 +13,7 @@ Imports:
   remotes,
   factoextra(>= 1.0.7),
   NbClust(>= 3.0),
+  Matrix,
   VarSelLCM,
   dplyr(>= 1.1.1),
   tidyr,
