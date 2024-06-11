@@ -10,7 +10,7 @@ Depends:
   R(>= 4.1.0)
 Options: datashield.privacyLevel=5
 Imports:
-  Matrix(<=1.6-5),
+  remotes,
   factoextra(>= 1.0.7),
   NbClust(>= 3.0),
   VarSelLCM,
@@ -41,5 +41,5 @@ Suggests:
     testthat (>= 3.0.0),
     cluster,
     remotes
-Remotes: datashield/dsBase
+Remotes: cran/Matrix@1.6-5
 Config/testthat/edition: 3
