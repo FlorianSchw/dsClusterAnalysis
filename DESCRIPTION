@@ -41,5 +41,5 @@ Suggests:
     testthat (>= 3.0.0),
     cluster,
     remotes
-Remotes: cran/Matrix@1.6-5
+Remotes: cran/Matrix@1.6-5, datashield/dsBase@6.3.0
 Config/testthat/edition: 3
