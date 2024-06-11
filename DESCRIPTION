@@ -7,7 +7,8 @@ License: GPL-3
 Title: DataSHIELD server side functions for the dsClusterAnalysis package
 Description: Server side functions to perform non-disclosive cluster analysis with DataSHIELD.
 Depends: 
-  R(>= 4.1.0)
+  R(>= 4.1.0),
+  dsBase
 Options: datashield.privacyLevel=5
 Imports:
   remotes,
@@ -18,8 +19,7 @@ Imports:
   tidyr,
   truncnorm,
   clusterSim,
-  stringr,
-  dsBase
+  stringr
 AggregateMethods:
   clusterPlotDS,
   nbclustDS,
