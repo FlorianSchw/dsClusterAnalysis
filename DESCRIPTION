@@ -2,7 +2,7 @@ Package: dsClusterAnalysis
 Type: Package
 Maintainer: <Florian.Schwarz@dife.de>
 Author: <Florian.Schwarz@dife.de>
-Version: 1.0.0
+Version: 1.0.1
 License: GPL-3
 Title: DataSHIELD server side functions for the dsClusterAnalysis package
 Description: Server side functions to perform non-disclosive cluster analysis with DataSHIELD.
