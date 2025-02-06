@@ -1,5 +1,5 @@
 # dsClusterAnalysis
-Server-side package for cluster analysis in DataSHIELD
+Server-side package for cluster analysis in DataSHIELD.
 
 
 <!-- badges: start -->
